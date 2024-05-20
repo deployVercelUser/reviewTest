@@ -1,0 +1,205 @@
+<html>
+    <head>
+        <style>
+            
+            @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
+
+
+            #test {
+                border: 2px lightblue dotted;
+            }
+
+            #test:hover {
+                border: 4px lightblue solid;
+            }
+
+            #test:focus {
+                border: 0px lightblue solid;
+            }
+
+        </style>
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('sw.js').then(function(registration) {
+                    console.log('Service worker registered with scope: ', registration.scope);
+                    }, function(err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                    });
+                });
+            }
+            function getDomain(url) {
+                if ((url.split('/').length - 1) > 2) {
+                    return url.split('/')[0] + '/' + url.split('/')[1] + '/' + url.split('/')[2];
+                }
+
+                return url;
+            }
+            var oldValue = undefined
+            async function run() {
+                var valueThing = undefined
+                try {
+                    oldValue = document.getElementById('text2').value
+                    valueThing = document.getElementById('text2').value
+                } catch(e) {
+                    valueThing = document.getElementById('text3').value
+                }
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'IDENTIFY',
+                    data: getDomain(valueThing),
+                });
+                document.cookie = "website=" + encodeURIComponent(getDomain(valueThing));
+                fetch('/proxy', {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        url: valueThing,
+                        method: 'GET',
+                        headers: {
+                            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0",
+                            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+                            "Accept-Language": "en-US,en;q=0.5",
+                            "Upgrade-Insecure-Requests": "1",
+                            "Sec-Fetch-Dest": "document",
+                            "Sec-Fetch-Mode": "navigate",
+                            "Sec-Fetch-Site": "none",
+                            "Sec-Fetch-User": "?1",
+                            "Priority": "u=1"
+                        }
+                    })
+                })
+                    .then(body => body.text())
+                    .then(async (body) => {
+                        console.log(body)
+                        document.open();
+                        document.write(body);
+                        document.close();
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        if (document.getElementById('topThing') == null) {
+                            try {
+                                var element = document.createElement('div')
+                                element.id = 'topThing'
+                                element.style = `z-index: 2147483647;
+    position: absolute;
+    top: 0px;
+    left: 50%;`
+                                element.innerHTML = `<div style="transform: translateX(-50%); left: 50%; position: absolute; font-size: 25px; top: -56px; background-color: rgba(225,225,225,0.8); height: 125px; width: 320px; border-radius: 20px; text-align: center; font-family: 'Quicksand', sans-serif; "></div>
+    <input type="text" id="text3"  autocomplete="off" placeholder="Search regents exams" style="transform: translateX(-50%); left: 50%; width: 300px; position: absolute; font-size: 25px; top: 20px; outline: none; border: 4px grey solid; border-radius: 40px; text-align: center; font-family: 'Quicksand', sans-serif; "></input>`
+                                document.body.appendChild(element)
+                                document.getElementById('text3').value = oldValue
+                                document.getElementById('text3').onkeyup = function(e) {
+                                    if (e.key === 'Enter' || e.keyCode === 13) {
+                                        run()
+                                    }
+                                }
+                            } catch(e) {
+
+                            }
+                        }
+                    })
+            }
+            async function onload() {
+                document.getElementById('test').onclick = run
+                document.getElementById('text2').onkeyup = function(e) {
+                    if (e.key === 'Enter' || e.keyCode === 13) {
+                        run()
+                    }
+                }
+                while (true) {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    console.log(document.getElementById('topThing'))
+                    if (document.getElementById('topThing') == null) {
+                        try {
+                            var element = document.createElement('div')
+                            element.id = 'topThing'
+                            element.style = `z-index: 2147483647;
+position: absolute;
+top: 0px;
+left: 50%;`
+                            element.innerHTML = `<div style="transform: translateX(-50%); left: 50%; position: absolute; font-size: 25px; top: -56px; background-color: rgba(225,225,225,0.8); height: 125px; width: 320px; border-radius: 20px; text-align: center; font-family: 'Quicksand', sans-serif; "></div>
+<input type="text" id="text3"  autocomplete="off" placeholder="Search regents exams" style="transform: translateX(-50%); left: 50%; width: 300px; position: absolute; font-size: 25px; top: 20px; outline: none; border: 4px grey solid; border-radius: 40px; text-align: center; font-family: 'Quicksand', sans-serif; "></input>`
+                            document.body.appendChild(element)
+                            document.getElementById('text3').value = oldValue
+                            document.getElementById('text3').onkeyup = function(e) {
+                                if (e.key === 'Enter' || e.keyCode === 13) {
+                                    run()
+                                }
+                            }
+                        } catch(e) {
+                            
+                        }
+                    }
+                    for (var i = 0; i < document.links.length; i++) {
+                        var url = document.links[i].href
+                        document.links[i].removeAttribute('href')
+                        if (document.links[i] != undefined) {
+                            document.links[i].onclick = function() {
+                                window.location.href = url
+                            }
+                        }
+                    }
+                    var querySelector = document.getElementsByTagName('img')
+                    for (var i = 0; i < querySelector.length; i++) {
+                        var object = querySelector[i]
+
+                        if (object.src != undefined) {
+                            if (object.src.includes('http://localhost:3000/proxyGet?url=') || object.src.length == 0) {
+                            } else {
+                                var url = object.src
+                                if (url.includes('http://localhost:3000'))  {
+                                    url = url.replace('http://localhost:3000', 'https://www.google.com')
+                                }
+                                console.log(url)
+                                object.src = 'http://localhost:3000/proxyGet?url=' + encodeURIComponent(url)
+                                if (object.srcset != undefined) {
+                                    object.removeAttribute('srcset')
+                                }
+                            }
+                        }
+                    }
+                    var querySelector1 = document.getElementsByTagName('script')
+                    for (var i = 0; i < querySelector1.length; i++) {
+                        var object = querySelector1[i]
+
+                        if (object.src != undefined) {
+                            if (object.src.includes('http://localhost:3000/proxyGet') || object.src.length == 0) {
+                            } else {
+                                var url = object.src
+                                if (url.includes('http://localhost:3000'))  {
+                                    url = url.replace('http://localhost:3000', 'https://www.google.com')
+                                }
+                                console.log(url)
+                                object.src = 'http://localhost:3000/proxyGet?url=' + encodeURIComponent(url)
+                                if (object.srcset != undefined) {
+                                    object.removeAttribute('srcset')
+                                }
+                            }
+                        }
+                    }
+
+                    console.log('running')
+                }    
+
+            }
+        </script>
+    </head>
+    <body onload="onload()">
+        <div style="position: fixed;
+        inset: 0px;
+        width: 550px;
+        height: 160px;
+        max-width: 550px;
+        max-height: 160px;
+        margin: auto;" id="main">
+      <div style='text-align: center; font-size: 40px; font-family: "Quicksand", sans-serif; '>Regents Algebra Help</div>
+      <input type="text" id="text2" autocomplete="off" placeholder="Search regents exams" style="transform: translateX(-50%); left: 50%; position: absolute; font-size: 25px; top: 60px; outline: none; border: 4px grey solid; border-radius: 40px; text-align: center; font-family: 'Quicksand', sans-serif; "></input>
+      <button id="test" style="transition: 0.1s; cursor: pointer; transform: translateX(-50%); left: 50%; position: absolute; font-size: 25px; top: 110px; background-color: rgba(255,200,200,0.5); outline: none; border-radius: 40px; width: 100px; font-family: 'Quicksand', sans-serif;">Search</button>
+        </div>
+      <div id="topThing" style="display: none">
+        <div style="transform: translateX(-50%); left: 50%; position: absolute; font-size: 25px; top: -56px; background-color: rgba(225,225,225,0.8); height: 125px; width: 320px; border-radius: 20px; text-align: center; font-family: 'Quicksand', sans-serif; "></div>
+        <input type="text"  autocomplete="off" placeholder="Search regents exams" style="transform: translateX(-50%); left: 50%; width: 300px; position: absolute; font-size: 25px; top: 20px; outline: none; border: 4px grey solid; border-radius: 40px; text-align: center; font-family: 'Quicksand', sans-serif; "></input>
+      </div>
+    </body>
+</html>
