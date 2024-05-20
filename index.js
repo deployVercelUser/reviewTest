@@ -303,4 +303,6 @@ app.get('/sw.js', function(req, res) {
     res.sendFile(__dirname + '/sw.js')
 })
 
+app.listen(3000)
+
 module.exports = app
