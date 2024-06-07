@@ -145,6 +145,7 @@ app.use(cookieParser())
 app.use(express.json())
 app.post('/proxy', function(req, res) {
     try {
+        console.log(req.body)
         var proxyData = {
             headers: req.body.headers,
             method: req.body.method,
